@@ -1,0 +1,93 @@
+-- Create the Loading Screen GUI
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create the screen GUI
+local loadingScreen = Instance.new("ScreenGui")
+loadingScreen.Name = "LoadingScreen"
+loadingScreen.Parent = playerGui
+
+-- Create the background frame for the loading screen
+local background = Instance.new("Frame")
+background.Size = UDim2.new(1, 0, 1, 0)  -- Full screen
+background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- Black background
+background.BackgroundTransparency = 0.6  -- Semi-transparent
+background.Position = UDim2.new(0, 0, 0, 0)
+background.Parent = loadingScreen
+
+-- Create a rotating loading icon (using an image)
+local loadingIcon = Instance.new("ImageLabel")
+loadingIcon.Size = UDim2.new(0, 100, 0, 100)
+loadingIcon.Position = UDim2.new(0.5, -50, 0.4, -50)  -- Centered on screen
+loadingIcon.Image = "rbxassetid://6023426921"  -- Replace with your own loading image
+loadingIcon.BackgroundTransparency = 1  -- Transparent background
+loadingIcon.Parent = background
+
+-- Create the loading text label
+local loadingText = Instance.new("TextLabel")
+loadingText.Text = "Loading..."
+loadingText.Size = UDim2.new(0, 200, 0, 50)
+loadingText.Position = UDim2.new(0.5, -100, 0.6, -25)  -- Centered below the icon
+loadingText.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White text
+loadingText.TextSize = 30
+loadingText.TextStrokeTransparency = 0.5  -- Text outline
+loadingText.BackgroundTransparency = 1  -- No background for the text
+loadingText.Parent = background
+
+-- Create a progress bar below the text
+local progressBarBackground = Instance.new("Frame")
+progressBarBackground.Size = UDim2.new(0, 400, 0, 20)
+progressBarBackground.Position = UDim2.new(0.5, -200, 0.7, -10)  -- Below text
+progressBarBackground.BackgroundColor3 = Color3.fromRGB(200, 200, 200)  -- Light gray background
+progressBarBackground.Parent = background
+
+local progressBar = Instance.new("Frame")
+progressBar.Size = UDim2.new(0, 0, 1, 0)  -- Start with 0 width
+progressBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)  -- Green progress bar
+progressBar.Parent = progressBarBackground
+
+-- Function to animate the progress bar
+local function updateProgressBar()
+    local progress = 0
+    while progress < 1 do
+        wait(0.1)
+        progress = progress + 0.01  -- Increase the progress
+        progressBar.Size = UDim2.new(progress, 0, 1, 0)  -- Update progress bar width
+    end
+end
+
+-- Function to rotate the loading icon
+local function rotateIcon()
+    while true do
+        loadingIcon.Rotation = loadingIcon.Rotation + 5  -- Increase the rotation by 5 degrees
+        wait(0.05)  -- Delay to make the rotation smooth
+    end
+end
+
+-- Function to fade in the loading screen
+local function fadeIn()
+    for i = 0, 1, 0.1 do
+        background.BackgroundTransparency = i
+        wait(0.05)
+    end
+end
+
+-- Function to fade out the loading screen
+local function fadeOut()
+    for i = 1, 0, -0.1 do
+        background.BackgroundTransparency = i
+        wait(0.05)
+    end
+end
+
+-- Start the fade-in and animations
+fadeIn()
+task.spawn(updateProgressBar)  -- Start the progress bar animation
+task.spawn(rotateIcon)         -- Start rotating the loading icon
+
+-- Simulate a long loading process and then fade out
+wait(10)  -- Wait for 10 seconds (simulate loading time)
+fadeOut()  -- Fade out the loading screen
+
+-- Optionally, you can remove the screen GUI after the fade-out to clean up
+loadingScreen:Destroy()
