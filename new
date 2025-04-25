@@ -14,28 +14,34 @@ print("Checking all prizes...")
 for _, prize in pairs(prizes:GetChildren()) do
     local content = prize:FindFirstChild("Content")
     if content then
-        local claimButton = content:FindFirstChild("Claim")
-        if claimButton then
-            -- Check if the Claim button is a UI element that can have text (TextLabel, TextButton, etc.)
-            if claimButton:IsA("TextLabel") or claimButton:IsA("ImageButton") then
-                print("Claim button found with name: " .. claimButton.Name) -- Print button name
-
-                -- Check if the Claim button has text (only works for TextLabel, TextButton, etc.)
-                if claimButton:IsA("TextLabel") and claimButton.Text == "Claim" then
-                    print("Claim label found with 'Claim' text!")
-                    pcall(function()
-                        remote:InvokeServer("ClaimQuest", prize.Name)
-                    end)
-                elseif claimButton:IsA("ImageButton") then
-                    print("Claim button is an ImageButton, no text to check.")
-                else
-                    print("Claim button text is not 'Claim', it is: " .. claimButton.Text)
+        local claimFrame = content:FindFirstChild("Claim")
+        if claimFrame then
+            -- Debugging: Check the properties of the claim frame
+            print("Claim frame found in prize: " .. prize.Name)
+            print("Claim frame size: " .. tostring(claimFrame.Size))
+            print("Claim frame position: " .. tostring(claimFrame.Position))
+            
+            -- Check for a unique UI property (like a label, button, or any text)
+            local claimButtonFound = false
+            for _, child in pairs(claimFrame:GetChildren()) do
+                if child:IsA("ImageButton") or child:IsA("TextButton") then
+                    print("Found clickable child: " .. child.ClassName)
+                    claimButtonFound = true
+                    break
                 end
+            end
+
+            if claimButtonFound then
+                print("Claim button found in prize: " .. prize.Name)
+                -- Call server function to claim the prize
+                pcall(function()
+                    remote:InvokeServer("ClaimQuest", prize.Name)
+                end)
             else
-                print("Claim button is not a TextLabel or ImageButton.")
+                print("No clickable button inside claim frame for prize: " .. prize.Name)
             end
         else
-            print("No Claim button found in prize: " .. prize.Name)
+            print("No Claim frame found in prize: " .. prize.Name)
         end
     else
         print("No Content found in prize: " .. prize.Name)
