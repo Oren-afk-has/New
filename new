@@ -10,14 +10,17 @@ local function handleRiftInteraction(rift)
     local targetPart = rift.PrimaryPart or rift:FindFirstChildWhichIsA("BasePart")
     if not targetPart then return end
 
-    -- Tween to the rift
+    -- Tween to the rift (linear easing style)
     local goal = { CFrame = targetPart.CFrame * CFrame.new(0, 5, -5) }
-    local tweenInfo = TweenInfo.new(15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tweenInfo = TweenInfo.new(15, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
     local tween = TweenService:Create(hrp, tweenInfo, goal)
     tween:Play()
     tween.Completed:Wait()
 
-    -- Fire the corresponding event
+    -- Wait 2 seconds before opening the egg
+    wait(2)
+
+    -- Fire the corresponding event to open the egg
     local eventRemote = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
     local args = {}
 
