@@ -7,27 +7,24 @@ local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
 
 local function handleRiftInteraction(rift)
-    local targetPart = rift.PrimaryPart or rift:FindFirstChildWhichIsA("BasePart")
-    if not targetPart then return end
+    local eggPlatformPart = rift:FindFirstChild("EggPlatformSpawn") and rift.EggPlatformSpawn:GetChildren()[4]
+    if not eggPlatformPart then return end
 
-    -- Tween to the rift (linear easing style)
-    local goal = { CFrame = targetPart.CFrame * CFrame.new(0, 5, -5) }
+    local goal = { CFrame = eggPlatformPart.CFrame + Vector3.new(0, 5, 0) }
     local tweenInfo = TweenInfo.new(15, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
     local tween = TweenService:Create(hrp, tweenInfo, goal)
     tween:Play()
     tween.Completed:Wait()
 
-    -- Wait 2 seconds before opening the egg
     wait(2)
 
-    -- Fire the corresponding event to open the egg
     local eventRemote = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event")
-    local args = {}
+    local args = { "HatchEgg", "", 4 }
 
     if rift.Name == "event-1" then
-        args = { "HatchEgg", "Bunny Egg", 4 }
+        args[2] = "Bunny Egg"
     elseif rift.Name == "event-2" then
-        args = { "HatchEgg", "Pastel Egg", 4 }
+        args[2] = "Pastel Egg"
     end
 
     eventRemote:FireServer(unpack(args))
@@ -37,13 +34,10 @@ for _, rift in ipairs(workspace.Rendered.Rifts:GetChildren()) do
     if rift.Name == "event-1" or rift.Name == "event-2" then
         local luck = rift:FindFirstChild("Display") and rift.Display:FindFirstChild("SurfaceGui") and rift.Display.SurfaceGui:FindFirstChild("Icon") and rift.Display.SurfaceGui.Icon:FindFirstChild("Luck")
         if luck and luck:IsA("TextLabel") then
-            handleRiftInteraction(rift)
-            break
+            while true do
+                handleRiftInteraction(rift)  -- Keep interacting with the same rift
+                task.wait(0.01)  -- Wait before opening the next egg
+            end
         end
     end
-end
-
--- Monitor if any event rifts exist
-if not next(workspace.Rendered.Rifts:GetChildren()) then
-    print("No event rifts found")
 end
