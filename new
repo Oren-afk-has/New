@@ -53,88 +53,32 @@ local Toggle = Tabs.Farming:AddToggle("Blow",
     end
 })
 
-local Section = Tabs.Farming:AddSection("Selling")
-local Input = Tabs.Farming:AddInput("SellTimer", {
-    Title = "Timed AutoSell",
-    Default = "60",
-    Placeholder = "60",
-    Numeric = true,
-    Finished = false,
-    Callback = function(Value)
-        sellInterval = tonumber(Value) or 60
-    end
-})
-
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
-
-local sellModel = workspace.Worlds["The Overworld"].Sell
-
-local sellPart = nil
-for _, part in pairs(sellModel:GetChildren()) do
-    if part:IsA("BasePart") then
-        sellPart = part
-        break
-    end
-end
-
-if not sellPart then
-    return
-end
-
-local targetPosition = sellPart.Position
-local originalPosition = hrp.Position
-local distance = (hrp.Position - targetPosition).Magnitude
-local speed = 50
-local timeToReachTarget = distance / speed
-local tweenInfo = TweenInfo.new(timeToReachTarget, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-
-local function fireRemoteEvent()
-    local args = {
-        [1] = "SellBubble"
-    }
-    game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))
-end
-
-local function tweenPlayer()
-    local goalToTarget = { CFrame = CFrame.new(targetPosition) }
-    local tweenToTarget = TweenService:Create(hrp, tweenInfo, goalToTarget)
-    tweenToTarget:Play()
-
-    while tweenToTarget.Playing do
-        fireRemoteEvent()
-        wait(0.1)
-    end
-
-    tweenToTarget.Completed:Wait()
-
-    wait(2)
-
-    local goalToOriginal = { CFrame = CFrame.new(originalPosition) }
-    local tweenToOriginal = TweenService:Create(hrp, tweenInfo, goalToOriginal)
-    tweenToOriginal:Play()
-
-    while tweenToOriginal.Playing do
-        fireRemoteEvent()
-        wait(0.1)
-    end
-
-    tweenToOriginal.Completed:Wait()
-end
-
-local Toggle = Tabs.Farming:AddToggle("Sell", 
+local Toggle = Tabs.Hatching:AddToggle("EggAnimation", 
 {
-    Title = "Auto Sell Bubbles", 
-    Description = "Automatically Sells Bubbles",
+    Title = "Remove Egg Animation", 
+    Description = "Removes Any Egg Animation For Better Experience ",
     Default = false,
     Callback = function(state)
+        local Module = require(game:GetService("ReplicatedStorage").Client.Effects.HatchEgg)
+
         if state then
-            tweenPlayer()
+            Module.Play = function(self, result)
+                if result and result.Pets then
+                    local gui = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
+                    gui.Hatching.Visible = false
+                    gui.HUD.Visible = true
+                    self._hatching = false
+                end
+            end
+
+            local result = { Pets = {} }
+            Module.Play(Module, result)
+        else
+            local gui = game.Players.LocalPlayer.PlayerGui:WaitForChild("ScreenGui")
+            gui.Hatching.Visible = true
+            gui.HUD.Visible = false
         end
-    end 
+    end
 })
 
 --Config Saving
