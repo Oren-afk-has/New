@@ -35,7 +35,7 @@ Section:AddParagraph({
 
 -- Farming
 local Section = Tabs.Farming:AddSection("Blowing")
-local Toggle = Tabs.Farming:AddToggle("Bubbles", 
+local Toggle = Tabs.Farming:AddToggle("Blow", 
 {
     Title = "Auto Blow Bubbles", 
     Description = "Automatically Blows Bubbles For You",
@@ -49,11 +49,23 @@ local Toggle = Tabs.Farming:AddToggle("Bubbles",
                 game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))
                 task.wait()
             end
-        else
-            print("Auto Blow Bubbles is OFF")
         end
     end
 })
+
+local Section = Tabs.Farming:AddSection("Selling")
+local Input = Tabs.Farming:AddInput("Sell", {
+    Title = "Timed AutoSell",
+    Description = "",
+    Default = "Default",
+    Placeholder = "Placeholder",
+    Numeric = false,
+    Finished = false,
+    Callback = function(Value)
+        print("Input changed:", Value)
+    end
+})
+
 
 --Config Saving
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
