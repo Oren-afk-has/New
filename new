@@ -53,85 +53,20 @@ local Toggle = Tabs.Farming:AddToggle("Blow",
     end
 })
 
-local excluded = {
-    ["gift-rift"] = true,
-    ["golden-chest"] = true,
-    ["royal-chest"] = true,
-}
+local rifteggs = {}
+for _, item in pairs(workspace.Rendered.Rifts:GetChildren()) do
+    if item.Name ~= "golden-chest" and item.Name ~= "royal-chest" and item.Name ~= "gift-rift" then
+        table.insert(rifteggs, item.Name)
+    end
+end
 
--- Create the dropdown first with empty Values (we'll fill them in)
-local MultiDropdown = Tabs.Rifts:AddDropdown("MultiDropdown", {
-    Title = "Rifts",
-    Description = "Select What Rift You Want To Hatch",
-    Values = {}, -- Empty for now
-    Multi = true,
-    Default = {},
+local Dropdown = Tabs.Rifts:AddDropdown("Dropdown", {
+    Title = "AutoFarm Rifts",
+    Description = "Select Rifts You Want To Auto Hatch",
+    Values = rifteggs,
+    Multi = false,
+    Default = 1,
 })
-
--- Collect rift names
-local riftNames = {}
-for _, rift in ipairs(workspace.Rendered.Rifts:GetChildren()) do
-    if not excluded[rift.Name] then
-        table.insert(riftNames, rift.Name)
-    end
-end
-
--- Update the dropdown's Values
-MultiDropdown:SetValues(riftNames)
-local MoveToRiftToggle = Tabs.Rifts:AddToggle("MoveToRiftToggle", {
-    Title = "Move To Selected Rift",
-    Default = false,
-    Callback = function(state)
-        if state then
-            local selectedRift = MultiDropdown:GetValue()
-            if selectedRift and selectedRift[1] then
-                local rift = workspace.Rendered.Rifts:FindFirstChild(selectedRift[1])
-                if rift and rift:FindFirstChild("Display") then
-                    local player = game.Players.LocalPlayer
-                    local tweenService = game:GetService("TweenService")
-                    local riftDisplay = rift.Display
-                    local speed = 750
-
-                    if player.Character then
-                        local character = player.Character
-                        local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-                        local distance = (riftDisplay.Position - humanoidRootPart.Position).Magnitude
-                        local duration = distance / speed
-                        
-                        local tweenInfo = TweenInfo.new(
-                            duration,
-                            Enum.EasingStyle.Linear,
-                            Enum.EasingDirection.InOut,
-                            0,
-                            false,
-                            0
-                        )
-                        
-                        local goal = { CFrame = riftDisplay.CFrame }
-                        local tween = tweenService:Create(humanoidRootPart, tweenInfo, goal)
-                        
-                        tween:Play()
-                    end
-                end
-            end
-        end
-    end
-})
-
-MoveToRiftToggle:Update()
-
-local riftNames = {}
-for _, rift in ipairs(workspace.Rendered.Rifts:GetChildren()) do
-    if not excluded[rift.Name] then
-        table.insert(riftNames, rift.Name)
-    end
-end
-
-if #riftNames > 0 then
-    MultiDropdown:SetValues(riftNames)
-else
-    MultiDropdown:SetValues({"No rifts available"})
-end
 
 --Config Saving
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
