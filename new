@@ -57,9 +57,9 @@ local Section = Tabs.Farming:AddSection("Selling")
 local Input = Tabs.Farming:AddInput("Sell", {
     Title = "Timed AutoSell",
     Description = "",
-    Default = "Default",
-    Placeholder = "Placeholder",
-    Numeric = false,
+    Default = "60",
+    Placeholder = "",
+    Numeric = true,
     Finished = false,
     Callback = function(Value)
         print("Input changed:", Value)
