@@ -53,62 +53,68 @@ local Toggle = Tabs.Farming:AddToggle("Blow",
     end
 })
 
-local excluded = {
-    ["gift-rift"] = true,
-    ["golden-chest"] = true,
-    ["royal-chest"] = true,
-}
+local TweenService = game:GetService("TweenService")
 
+-- Dropdown for selecting rifts
 local MultiDropdown = Tabs.Rifts:AddDropdown("MultiDropdown", {
     Title = "Rifts",
     Description = "Select What Rift You Want To Hatch",
-    Values = {},
+    Values = {},  -- You'll populate this with rift names later
     Multi = true,
     Default = {},
 })
 
+-- Populate the dropdown with available rifts
 local riftNames = {}
 for _, rift in ipairs(workspace.Rendered.Rifts:GetChildren()) do
     if not excluded[rift.Name] then
         table.insert(riftNames, rift.Name)
     end
 end
-
---Rifts
 MultiDropdown:SetValues(riftNames)
 
-local Toggle = Tabs.Rifts:AddToggle("Rift", {
-    Title = "AutoFarm Rift",
-    Description = "AutoFarms Selected Rift",
+-- Toggle for moving to selected rift
+local Toggle = Tabs.Rifts:AddToggle("Rift", 
+{
+    Title = "Toggle", 
+    Description = "Toggle description",
     Default = false,
     Callback = function(state)
         if state then
-            -- Start autofarming (Tween to selected Rift)
-            local selectedRifts = MultiDropdown.Values  -- This is the property storing selected values
-            
+            print("Toggle On")
+            -- Get selected rifts from the dropdown
+            local selectedRifts = MultiDropdown:GetValue()
+
+            -- Iterate over each selected rift
             for _, riftName in ipairs(selectedRifts) do
+                -- Find the rift with the given name
                 local rift = workspace.Rendered.Rifts:FindFirstChild(riftName)
-                if rift then
-                    local sign = rift:FindFirstChild("Sign")
-                    if sign then
-                        -- Tween the player to the Sign position
-                        local player = game.Players.LocalPlayer
-                        local char = player.Character
-                        if char then
-                            local hrp = char:WaitForChild("HumanoidRootPart")
-                            if hrp then
-                                local tweenService = game:GetService("TweenService")
-                                local goal = {Position = sign.Position}
-                                local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, false)
-                                local tween = tweenService:Create(hrp, tweenInfo, goal)
-                                tween:Play()
-                            end
+                if rift and not excluded[rift.Name] then
+                    local display = rift:FindFirstChild("Display")
+                    if display and display:IsA("BasePart") then
+                        -- Get the position of the Display part
+                        local targetPosition = display.Position
+
+                        -- Get the player's character
+                        local character = game.Players.LocalPlayer.Character
+                        if character then
+                            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+                            -- Create a Tween for smooth movement to the target position
+                            local tweenInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                            local goal = {Position = targetPosition}
+                            local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
+
+                            -- Play the tween to move the player
+                            tween:Play()
                         end
+                    else
+                        print(rift.Name .. " does not have a valid Display part.")
                     end
                 end
             end
         else
-            -- Toggle off (Stop tweens or reset to original position)
+            print("Toggle Off")
         end
     end
 })
